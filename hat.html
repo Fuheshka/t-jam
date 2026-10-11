@@ -5,9 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Шляпа Т—ДЖЕМа</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300..700&display=swap">
+<link rel="stylesheet" href="assets/motion.css">
+<script src="assets/motion.js"></script>
 <style>
 /* Layout: projector-first single screen. Team rail on top, two "hats" side by side, team board below. One deliberate dark look in Т—Университет gradients. */
-:root {
+:root { --motion-bg: linear-gradient(135deg, #165560 0%, #2C8C8C 42%, #7C6CC6 80%, #A24DC2 100%);
   --bg-a: #165560; --bg-b: #2C8C8C; --bg-c: #7C6CC6; --bg-d: #A24DC2;
   --ink: #F6F4FA; --ink-soft: rgba(246,244,250,.74); --line: rgba(246,244,250,.55);
   --glass: rgba(246,244,250,.10); --glass-strong: rgba(246,244,250,.18);
@@ -107,8 +109,6 @@ footer { display: flex; justify-content: space-between; align-items: center; fle
 </head>
 <body>
 
-<svg class="rays r1" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
-<svg class="rays r2" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
 
 <div class="wrap">
   <header>
@@ -184,7 +184,6 @@ function rays(svg) {
   }
   svg.innerHTML = out;
 }
-document.querySelectorAll('.rays').forEach(rays);
 
 function esc(s) { return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
@@ -316,6 +315,7 @@ fullBtn.addEventListener('click', toggleFull);
 document.addEventListener('fullscreenchange', () => { fullBtn.textContent = document.fullscreenElement ? 'Выйти из полного экрана' : 'На весь экран (F)'; });
 document.addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F' || e.key === 'а' || e.key === 'А') && !e.metaKey && !e.ctrlKey) toggleFull(); });
 
+motion({ fan: 'right:-10px;bottom:-10px;width:300px;height:173px;opacity:.7', wave: 'left:-30px;bottom:-30px;width:520px;height:170px;opacity:.7' });
 render();
 </script>
 </body>

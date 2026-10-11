@@ -5,9 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Таймер Т—ДЖЕМа</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300..700&display=swap">
+<link rel="stylesheet" href="assets/motion.css">
+<script src="assets/motion.js"></script>
 <style>
 /* Layout: projector-first. The ИСТ "ray burst" becomes the clock face: each ray is a slice of time and goes dark as it passes. Phase timeline under it. One deliberate dark look. */
-:root {
+:root { --motion-bg: linear-gradient(135deg, #165560 0%, #2C8C8C 42%, #7C6CC6 80%, #A24DC2 100%);
   --bg-a: #165560; --bg-b: #2C8C8C; --bg-c: #7C6CC6; --bg-d: #A24DC2;
   --ink: #F6F4FA; --ink-soft: rgba(246,244,250,.74); --line: rgba(246,244,250,.55);
   --glass: rgba(246,244,250,.10); --glass-strong: rgba(246,244,250,.2);
@@ -22,7 +24,7 @@ body {
   padding-inline: clamp(16px, 4vw, 56px); padding-block: 24px;
   overflow-x: hidden;
 }
-.wrap { max-width: 1400px; min-height: 100%; margin-inline: auto; display: flex; flex-direction: column; gap: 20px; }
+.wrap { position: relative; z-index: 1; max-width: 1400px; min-height: 100%; margin-inline: auto; display: flex; flex-direction: column; gap: 20px; }
 header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
 .brand { font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--ink-soft); }
 .brand b { color: var(--ink); font-weight: 500; }
@@ -297,6 +299,7 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('visibilitychange', () => { if (!document.hidden && running()) { keepAwake(); cancelAnimationFrame(raf); frame(); } });
 
+motion({ fan: 'right:-10px;bottom:-10px;width:300px;height:173px;opacity:.6', wave: 'left:-30px;bottom:-40px;width:440px;height:143px;opacity:.5' });
 load();
 renderTimeline();
 syncButtons();

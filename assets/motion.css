@@ -1,0 +1,15 @@
+/* Shared ambient motion for hat.html and timer.html (same look as slides.html) */
+.motion-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.motion-bg::before { content: ''; position: absolute; inset: -20%; background: inherit; background-image: var(--motion-bg); background-size: 220% 220%; animation: m-drift 24s ease-in-out infinite alternate; }
+.m-orb { position: absolute; border-radius: 50%; mix-blend-mode: screen; opacity: .5; animation: m-orb 22s ease-in-out infinite alternate; }
+.m-orb.o1 { width: 70vmax; height: 70vmax; left: -20vmax; top: -25vmax; background: radial-gradient(circle, rgba(159,230,212,.45) 0%, rgba(159,230,212,0) 60%); }
+.m-orb.o2 { width: 65vmax; height: 65vmax; right: -20vmax; bottom: -28vmax; background: radial-gradient(circle, rgba(233,169,208,.45) 0%, rgba(233,169,208,0) 60%); animation-duration: 28s; animation-direction: alternate-reverse; }
+.m-fan, .m-wave { position: fixed; pointer-events: none; z-index: 0; }
+.m-fan .bar { transform-box: fill-box; transform-origin: 0% 50%; animation: m-bloom .9s cubic-bezier(.2,1.35,.4,1) var(--d) both, m-breathe 3.6s ease-in-out calc(var(--d) + 1.2s) infinite alternate; }
+.m-wave line { opacity: .2; animation: m-shimmer 3.2s ease-in-out var(--d) infinite; }
+@keyframes m-drift { from { background-position: 0% 0%; } to { background-position: 100% 100%; } }
+@keyframes m-orb { from { transform: translate(0, 0) scale(1); } to { transform: translate(12vw, 8vh) scale(1.15); } }
+@keyframes m-bloom { from { transform: scaleX(0); opacity: 0; } to { transform: scaleX(1); opacity: 1; } }
+@keyframes m-breathe { from { transform: scaleX(1); opacity: 1; } to { transform: scaleX(.8); opacity: .75; } }
+@keyframes m-shimmer { 0%, 100% { opacity: .2; } 50% { opacity: .95; } }
+@media (prefers-reduced-motion: reduce) { .motion-bg::before, .m-orb, .m-fan .bar, .m-wave line { animation: none !important; } }
