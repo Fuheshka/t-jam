@@ -130,7 +130,7 @@ footer { display: flex; justify-content: space-between; align-items: center; fle
 
   <footer>
     <span>Вытянутое уходит из шляпы. Перетянул — старая карточка возвращается для других команд, но этой команде уже не выпадет.</span>
-    <button class="reset" id="reset">Сбросить всё</button>
+    <span style="display:flex;gap:10px;flex-wrap:wrap"><button class="reset" id="full">На весь экран (F)</button><button class="reset" id="reset">Сбросить всё</button></span>
   </footer>
 </div>
 
@@ -306,6 +306,15 @@ resetBtn.addEventListener('click', () => {
   S = fresh(S.n); save(); render();
   resetBtn.classList.remove('armed'); resetBtn.textContent = 'Сбросить всё';
 });
+
+const fullBtn = document.getElementById('full');
+function toggleFull() {
+  const p = document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+  p?.catch?.(() => {});
+}
+fullBtn.addEventListener('click', toggleFull);
+document.addEventListener('fullscreenchange', () => { fullBtn.textContent = document.fullscreenElement ? 'Выйти из полного экрана' : 'На весь экран (F)'; });
+document.addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F' || e.key === 'а' || e.key === 'А') && !e.metaKey && !e.ctrlKey) toggleFull(); });
 
 render();
 </script>
