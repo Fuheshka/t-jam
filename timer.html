@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Таймер Т—ДЖЕМа</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300..700&display=swap">
+<style>
+/* Layout: projector-first. The ИСТ "ray burst" becomes the clock face: each ray is a slice of time and goes dark as it passes. Phase timeline under it. One deliberate dark look. */
+:root {
+  --bg-a: #165560; --bg-b: #2C8C8C; --bg-c: #7C6CC6; --bg-d: #A24DC2;
+  --ink: #F6F4FA; --ink-soft: rgba(246,244,250,.74); --line: rgba(246,244,250,.55);
+  --glass: rgba(246,244,250,.10); --glass-strong: rgba(246,244,250,.2);
+  --mint: #9FE6D4; --card: #FBF8FC; --card-ink: #1E2A3A; --alarm: #F6D0E4; --alarm-ink: #5A1F48;
+  --font: 'Jost', 'Trebuchet MS', Arial, sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: linear-gradient(135deg, var(--bg-a) 0%, var(--bg-b) 42%, var(--bg-c) 80%, var(--bg-d) 100%) fixed, var(--bg-a);
+  color: var(--ink); font-family: var(--font); font-size: 18px;
+  padding-inline: clamp(16px, 4vw, 56px); padding-block: 24px;
+  overflow-x: hidden;
+}
+.wrap { max-width: 1400px; min-height: 100%; margin-inline: auto; display: flex; flex-direction: column; gap: 20px; }
+header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+.brand { font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--ink-soft); }
+.brand b { color: var(--ink); font-weight: 500; }
+.modes { display: flex; gap: 8px; flex-wrap: wrap; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; }
+.chip { border: 2px solid var(--line); background: var(--glass); border-radius: 999px; padding: 8px 18px; font-size: 16px; }
+.chip[aria-pressed="true"] { background: var(--card); color: var(--card-ink); border-color: var(--card); font-weight: 600; }
+
+main { flex: 1; display: grid; place-items: center; }
+.dial { position: relative; width: min(64vh, 88vw); aspect-ratio: 1; max-width: 100%; }
+.dial svg { width: 100%; height: 100%; display: block; }
+.dial line { transition: opacity .6s, stroke-width .3s; }
+.center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; }
+.phase { font-size: clamp(14px, 1.6vh + .4vw, 22px); letter-spacing: 3px; text-transform: uppercase; color: var(--mint); }
+.digits { font-size: clamp(64px, 13vh + 2vw, 200px); font-weight: 400; line-height: 1; letter-spacing: 2px; font-variant-numeric: tabular-nums; }
+.sub { font-size: clamp(15px, 1.6vh + .3vw, 22px); font-weight: 300; color: var(--ink-soft); max-width: 70%; text-wrap: balance; }
+.dial.last .digits { animation: pulse 1s ease-in-out infinite; }
+.dial.done .digits { color: var(--alarm); }
+
+.banner { align-self: center; max-width: 900px; width: 100%; text-align: center; background: var(--card); color: var(--card-ink); border-radius: 24px; padding: 16px 24px; font-size: clamp(20px, 2.4vw, 30px); font-weight: 500; box-shadow: 0 20px 50px rgba(20,10,40,.35); transform-origin: center; }
+.banner.show { animation: pop .5s cubic-bezier(.2,1.4,.4,1); }
+.banner.alarm { background: var(--alarm); color: var(--alarm-ink); }
+
+.timeline { display: flex; gap: 8px; }
+.seg { position: relative; border: 2px solid var(--line); border-radius: 18px; padding: 10px 14px; overflow: hidden; min-width: 0; background: var(--glass); }
+.seg .fill { position: absolute; inset: 0; width: 0; background: var(--glass-strong); }
+.seg span, .seg b { position: relative; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.seg span { font-size: 13px; letter-spacing: 1px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.seg b { font-size: 18px; font-weight: 500; }
+.seg.now { background: var(--card); color: var(--card-ink); border-color: var(--card); }
+.seg.now span { color: #4A5568; }
+.seg.now .fill { background: rgba(44,140,140,.18); }
+
+.teams { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 18px; }
+.teams .count { font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+.controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+.btn { border: 2px solid var(--line); background: var(--glass); border-radius: 999px; padding: 12px 22px; font-size: 18px; }
+.btn.main { border: 0; background: var(--card); color: var(--card-ink); font-weight: 600; padding-inline: 36px; min-width: 180px; box-shadow: 0 10px 30px rgba(20,10,40,.25); }
+.hint { text-align: center; font-size: 13px; color: var(--ink-soft); }
+
+@keyframes pulse { 50% { transform: scale(1.06); } }
+@keyframes pop { from { transform: scale(.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .dial.last .digits, .banner.show { animation: none; } .dial line { transition: none; } }
+@media (max-width: 640px) { .seg b { font-size: 15px; } .seg span { font-size: 11px; } .seg { padding: 8px 8px; } }
+</style>
+<style>*{box-sizing:border-box;margin:0;padding:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand"><b>Т—ДЖЕМ</b> · Т—Университет</div>
+    <div class="modes" role="group" aria-label="Режим">
+      <button class="chip" id="m-work" aria-pressed="true">Работа · 40 мин</button>
+      <button class="chip" id="m-pitch" aria-pressed="false">Защита · 2 мин</button>
+    </div>
+  </header>
+
+  <div class="banner" id="banner" hidden role="status"></div>
+
+  <main>
+    <div class="dial" id="dial">
+      <svg id="rays" viewBox="-110 -110 220 220" aria-hidden="true"></svg>
+      <div class="center">
+        <div class="phase" id="phase">Роли</div>
+        <div class="digits" id="digits" aria-live="off">40:00</div>
+        <div class="sub" id="sub">Распределите роли в команде</div>
+      </div>
+    </div>
+  </main>
+
+  <div class="timeline" id="timeline"></div>
+  <div class="teams" id="teams" hidden>
+    <button class="btn" id="t-prev" aria-label="Предыдущая команда">←</button>
+    <span>Выступает команда <span class="count" id="t-num">1</span></span>
+    <button class="btn" id="t-next">Следующая команда →</button>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="minus">−1 мин</button>
+    <button class="btn main" id="go">Старт</button>
+    <button class="btn" id="plus">+1 мин</button>
+    <button class="btn" id="reset">Сначала</button>
+    <button class="btn" id="sound" aria-pressed="true">Звук: вкл</button>
+    <button class="btn" id="full">На весь экран</button>
+  </div>
+  <div class="hint">Пробел — старт/пауза · F — на весь экран</div>
+</div>
+
+<script>
+const MODES = {
+  work: {
+    total: 40 * 60,
+    phases: [
+      { from: 0,  to: 5,  name: 'Роли',      sub: 'Распределите роли в команде' },
+      { from: 5,  to: 20, name: 'Концепция', sub: 'Жанр, игрок, лор' },
+      { from: 20, to: 35, name: 'Доработка', sub: 'Core loop, лого, обложка' },
+      { from: 35, to: 40, name: 'Питч',      sub: 'Готовим защиту на 2 минуты' }
+    ],
+    // shown when the phase starts (minute → message)
+    alerts: { 5: 'Роли распределены? Переходим к концепции', 20: 'Карта-твист! Тяните ограничение из шляпы', 35: 'Осталось 5 минут — готовим питч', 39: 'Последняя минута!' },
+    endMsg: 'Время вышло! Ручки на стол'
+  },
+  pitch: {
+    total: 2 * 60,
+    phases: [{ from: 0, to: 2, name: 'Защита', sub: '2 минуты на выступление' }],
+    alerts: {},
+    endMsg: 'Время! Вопрос от жюри'
+  }
+};
+const RAYS = 60;
+const KEY = 'tjam-timer-v1';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let mode = 'work', total = MODES.work.total;
+let endAt = null, left = total;   // endAt set while running; left = seconds remaining while paused
+let team = 1, sound = true, fired = new Set(), raf;
+
+const $ = id => document.getElementById(id);
+
+// --- rays (the clock face) ---
+const svg = $('rays');
+const palette = ['#9FE6D4', '#A7B4EC', '#C99BE4', '#E9A9D0'];
+let lines = [];
+(function buildRays() {
+  let h = '';
+  for (let k = 0; k < RAYS; k++) {
+    const a = -Math.PI / 2 + k / RAYS * Math.PI * 2;
+    const r1 = 78, r2 = 100 - (k % 2) * 6;
+    const c = palette[Math.floor(k / RAYS * palette.length)];
+    h += `<line x1="${(Math.cos(a) * r1).toFixed(2)}" y1="${(Math.sin(a) * r1).toFixed(2)}" x2="${(Math.cos(a) * r2).toFixed(2)}" y2="${(Math.sin(a) * r2).toFixed(2)}" stroke="${c}" stroke-width="3.2" stroke-linecap="round"/>`;
+  }
+  svg.innerHTML = h;
+  lines = [...svg.querySelectorAll('line')];
+})();
+
+// --- sound (WebAudio, starts only after a click) ---
+let ac;
+function chime(notes) {
+  if (!sound) return;
+  try {
+    ac ||= new (window.AudioContext || window.webkitAudioContext)();
+    notes.forEach(([f, t]) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, ac.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(0.3, ac.currentTime + t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + t + 0.6);
+      o.connect(g).connect(ac.destination); o.start(ac.currentTime + t); o.stop(ac.currentTime + t + 0.7);
+    });
+  } catch {}
+}
+const DING = [[784, 0], [1175, 0.15]];
+const END = [[1175, 0], [1175, 0.3], [1568, 0.6], [1568, 0.9]];
+
+// --- state helpers ---
+const running = () => endAt != null;
+const remaining = () => running() ? Math.max(0, (endAt - Date.now()) / 1000) : left;
+function fmt(s) { s = Math.ceil(s); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+function save() { try { localStorage.setItem(KEY, JSON.stringify({ mode, total, endAt, left, team, sound, fired: [...fired] })); } catch {} }
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY)); if (!s || !MODES[s.mode]) return;
+    ({ mode, total, endAt, left, team, sound } = s); fired = new Set(s.fired || []);
+  } catch {}
+}
+
+function banner(text, alarm) {
+  const b = $('banner');
+  b.textContent = text; b.hidden = false;
+  b.classList.toggle('alarm', !!alarm);
+  b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+}
+
+function renderTimeline() {
+  const M = MODES[mode];
+  $('timeline').hidden = mode !== 'work';
+  $('teams').hidden = mode !== 'pitch';
+  if (mode !== 'work') return;
+  $('timeline').innerHTML = M.phases.map((p, i) =>
+    `<div class="seg" style="flex:${p.to - p.from}" data-i="${i}"><div class="fill"></div><span>${p.from}–${p.to} мин</span><b>${p.name}</b></div>`).join('');
+}
+
+function frame() {
+  const M = MODES[mode];
+  const rem = remaining();
+  const elapsed = total - rem;
+  const elapsedMin = elapsed / 60;
+  // map elapsed onto the mode's nominal scale so phases stay right even after ±1 min
+  const scale = M.total / total;
+  const nominalMin = elapsedMin * scale;
+
+  $('digits').textContent = fmt(rem);
+  document.title = (running() ? '▶ ' : '') + fmt(rem) + ' · Т—ДЖЕМ';
+
+  const done = rem <= 0;
+  const p = M.phases.find(p => nominalMin < p.to) || M.phases[M.phases.length - 1];
+  $('phase').textContent = done ? 'Финиш' : p.name;
+  $('sub').textContent = done ? M.endMsg : p.sub;
+  $('dial').classList.toggle('last', !done && rem <= 10 && running());
+  $('dial').classList.toggle('done', done);
+
+  const lit = Math.ceil(rem / total * RAYS);
+  lines.forEach((l, k) => { l.style.opacity = k < RAYS - lit ? 0.12 : 1; });
+
+  if (mode === 'work') document.querySelectorAll('.seg').forEach(seg => {
+    const ph = M.phases[+seg.dataset.i];
+    const f = Math.min(1, Math.max(0, (nominalMin - ph.from) / (ph.to - ph.from)));
+    seg.querySelector('.fill').style.width = (f * 100) + '%';
+    seg.classList.toggle('now', !done && ph === p);
+  });
+
+  if (running()) {
+    for (const [min, msg] of Object.entries(M.alerts)) {
+      if (nominalMin >= +min && !fired.has(min)) { fired.add(min); banner(msg); chime(DING); save(); }
+    }
+    if (done) { endAt = null; left = 0; fired.add('end'); banner(M.endMsg, true); chime(END); save(); syncButtons(); }
+  }
+  if (running()) raf = requestAnimationFrame(frame);
+}
+
+function syncButtons() {
+  $('go').textContent = running() ? 'Пауза' : (remaining() <= 0 ? 'Заново' : (remaining() < total ? 'Продолжить' : 'Старт'));
+  $('sound').textContent = 'Звук: ' + (sound ? 'вкл' : 'выкл');
+  $('sound').setAttribute('aria-pressed', sound);
+  $('m-work').setAttribute('aria-pressed', mode === 'work');
+  $('m-pitch').setAttribute('aria-pressed', mode === 'pitch');
+  $('t-num').textContent = team;
+  $('t-prev').disabled = team <= 1;
+}
+
+let wake;
+async function keepAwake() { try { wake = await navigator.wakeLock?.request('screen'); } catch {} }
+
+function start() {
+  if (remaining() <= 0) reset();
+  endAt = Date.now() + left * 1000; save(); syncButtons(); keepAwake();
+  cancelAnimationFrame(raf); frame();
+}
+function pause() { left = remaining(); endAt = null; save(); syncButtons(); frame(); try { wake?.release(); } catch {} }
+function toggle() { running() ? pause() : start(); }
+function reset() {
+  cancelAnimationFrame(raf);
+  total = MODES[mode].total; left = total; endAt = null; fired = new Set();
+  $('banner').hidden = true; save(); syncButtons(); frame();
+}
+function shift(sec) {
+  const rem = remaining() + sec;
+  if (rem < 5) return;
+  total = Math.max(total + sec, rem);
+  if (running()) endAt += sec * 1000; else left = rem;
+  save(); frame(); syncButtons();
+}
+function setMode(m) { if (m === mode) return; mode = m; renderTimeline(); reset(); }
+
+$('go').onclick = () => { chime([]); toggle(); };
+$('reset').onclick = reset;
+$('minus').onclick = () => shift(-60);
+$('plus').onclick = () => shift(60);
+$('sound').onclick = () => { sound = !sound; save(); syncButtons(); };
+$('m-work').onclick = () => setMode('work');
+$('m-pitch').onclick = () => setMode('pitch');
+$('t-next').onclick = () => { team++; reset(); start(); };
+$('t-prev').onclick = () => { if (team > 1) { team--; reset(); } };
+$('full').onclick = () => { const d = document.documentElement; (document.fullscreenElement ? document.exitFullscreen() : d.requestFullscreen?.())?.catch?.(() => {}); };
+document.addEventListener('keydown', e => {
+  if (e.target.closest('button') && e.code === 'Space') return; // let a focused button handle Space itself
+  if (e.code === 'Space') { e.preventDefault(); toggle(); }
+  if (e.key === 'f' || e.key === 'F' || e.key === 'а' || e.key === 'А') $('full').click();
+});
+document.addEventListener('visibilitychange', () => { if (!document.hidden && running()) { keepAwake(); cancelAnimationFrame(raf); frame(); } });
+
+load();
+renderTimeline();
+syncButtons();
+frame();
+</script>
+</body>
+</html>

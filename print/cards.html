@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Т—ДЖЕМ: карточки</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300..700&display=swap">
+<style>
+  @page { size: A4 landscape; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Jost', Arial, sans-serif; color: #1E2A3A; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 297mm; height: 210mm; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  /* dashed lines = cut lines */
+  .card { border: 0.3mm dashed #B8B8C4; display: flex; flex-direction: column; overflow: hidden; }
+  .band { height: 38mm; padding: 7mm 9mm; color: #F6F4FA; display: flex; flex-direction: column; justify-content: space-between; }
+  .case .band { background: linear-gradient(135deg, #165560 0%, #2C8C8C 100%); }
+  .twist .band { background: linear-gradient(120deg, #3E9F95 0%, #7C6CC6 55%, #A24DC2 100%); }
+  .joker .band { background: linear-gradient(135deg, #9E4380 0%, #C47AAE 100%); }
+  .kind { font-size: 10pt; letter-spacing: 2pt; text-transform: uppercase; }
+  .title { font-size: 20pt; font-weight: 500; line-height: 1.1; text-transform: uppercase; letter-spacing: 0.5pt; }
+  .body { flex: 1; padding: 7mm 9mm 5mm; display: flex; flex-direction: column; gap: 4mm; }
+  .task { font-size: 17pt; line-height: 1.3; }
+  .twist .task { font-size: 24pt; font-weight: 500; line-height: 1.2; }
+  .hint { font-size: 11pt; line-height: 1.35; color: #4A5568; }
+  .foot { margin-top: auto; font-size: 9pt; letter-spacing: 1.5pt; text-transform: uppercase; color: #7A8494; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="card case"><div class="band"><div class="kind">Кейс</div><div class="title">Беспилотные системы</div></div>
+    <div class="body"><p class="task">Игра про оператора дронов: доставка, спасение или гонки.</p><p class="hint">Подумайте: что делает оператор, когда что-то идёт не по плану?</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+  <div class="card case"><div class="band"><div class="kind">Кейс</div><div class="title">Цифровое строительство</div></div>
+    <div class="body"><p class="task">Градостроитель, в котором игрок проектирует умный город.</p><p class="hint">Подумайте: какое решение инженера игрок почувствует на себе?</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+  <div class="card case"><div class="band"><div class="kind">Кейс</div><div class="title">Машинное обучение и ИИ</div></div>
+    <div class="body"><p class="task">ИИ — напарник или противник, который учится на действиях игрока.</p><p class="hint">Подумайте: как игрок заметит, что ИИ чему-то научился?</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+  <div class="card case"><div class="band"><div class="kind">Кейс</div><div class="title">Медиатехнологии</div></div>
+    <div class="body"><p class="task">Игра про блогера, телеканал или медиастудию.</p><p class="hint">Подумайте: что для медиа считается победой?</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+</div>
+
+<div class="page">
+  <div class="card case"><div class="band"><div class="kind">Кейс</div><div class="title">Web-разработка и дизайн</div></div>
+    <div class="body"><p class="task">Игрок строит сайт-вселенную или чинит сломанный интерфейс.</p><p class="hint">Подумайте: чем удобный сайт отличается от неудобного?</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+  <div class="card case"><div class="band"><div class="kind">Кейс</div><div class="title">Международный бизнес</div></div>
+    <div class="body"><p class="task">Торговая стратегия между странами и компаниями.</p><p class="hint">Подумайте: что меняется, когда партнёр живёт по другим правилам?</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+  <div class="card case"><div class="band"><div class="kind">Кейс</div><div class="title">Разработка игр</div></div>
+    <div class="body"><p class="task">Игра про собственную игровую студию: от идеи до релиза.</p><p class="hint">Подумайте: какие решения студии игрок примет сам?</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+  <div class="card joker"><div class="band"><div class="kind">Кейс</div><div class="title">Джокер</div></div>
+    <div class="body"><p class="task">Выберите любое направление из других карточек — или совместите два.</p><p class="hint">Например: дроны + ИИ, или умный город + бизнес.</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+</div>
+
+<div class="page">
+  <div class="card twist"><div class="band"><div class="kind">Твист · 20-я минута</div><div class="title">Ограничение</div></div>
+    <div class="body"><p class="task">Одна сессия — не дольше 30&nbsp;секунд</p><p class="hint">Встройте ограничение в игру. Обыграли — +2 балла.</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+  <div class="card twist"><div class="band"><div class="kind">Твист · 20-я минута</div><div class="title">Ограничение</div></div>
+    <div class="body"><p class="task">Играют одной рукой в метро</p><p class="hint">Встройте ограничение в игру. Обыграли — +2 балла.</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+  <div class="card twist"><div class="band"><div class="kind">Твист · 20-я минута</div><div class="title">Ограничение</div></div>
+    <div class="body"><p class="task">В игре нет ни слова текста</p><p class="hint">Встройте ограничение в игру. Обыграли — +2 балла.</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+  <div class="card twist"><div class="band"><div class="kind">Твист · 20-я минута</div><div class="title">Ограничение</div></div>
+    <div class="body"><p class="task">Только кооператив на двоих</p><p class="hint">Встройте ограничение в игру. Обыграли — +2 балла.</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+</div>
+
+<div class="page">
+  <div class="card twist"><div class="band"><div class="kind">Твист · 20-я минута</div><div class="title">Ограничение</div></div>
+    <div class="body"><p class="task">Всё управление — одна кнопка</p><p class="hint">Встройте ограничение в игру. Обыграли — +2 балла.</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+  <div class="card twist"><div class="band"><div class="kind">Твист · 20-я минута</div><div class="title">Ограничение</div></div>
+    <div class="body"><p class="task">Главный герой — не человек</p><p class="hint">Встройте ограничение в игру. Обыграли — +2 балла.</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+  <div class="card twist"><div class="band"><div class="kind">Твист · 20-я минута</div><div class="title">Ограничение</div></div>
+    <div class="body"><p class="task">Игрок не может проиграть</p><p class="hint">Встройте ограничение в игру. Обыграли — +2 балла.</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+  <div class="card twist"><div class="band"><div class="kind">Твист · 20-я минута</div><div class="title">Ограничение</div></div>
+    <div class="body"><p class="task">Всё происходит в одной комнате</p><p class="hint">Встройте ограничение в игру. Обыграли — +2 балла.</p><div class="foot"><span>Т—ДЖЕМ</span><span>Т—Университет</span></div></div></div>
+</div>
+
+</body>
+</html>

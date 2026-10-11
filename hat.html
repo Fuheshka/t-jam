@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Шляпа Т—ДЖЕМа</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300..700&display=swap">
+<style>
+/* Layout: projector-first single screen. Team rail on top, two "hats" side by side, team board below. One deliberate dark look in Т—Университет gradients. */
+:root {
+  --bg-a: #165560; --bg-b: #2C8C8C; --bg-c: #7C6CC6; --bg-d: #A24DC2;
+  --ink: #F6F4FA; --ink-soft: rgba(246,244,250,.74); --line: rgba(246,244,250,.55);
+  --glass: rgba(246,244,250,.10); --glass-strong: rgba(246,244,250,.18);
+  --mint: #9FE6D4; --card: #FBF8FC; --card-ink: #1E2A3A; --card-soft: #4A5568;
+  --theme-band: linear-gradient(135deg, #165560 0%, #2C8C8C 100%);
+  --twist-band: linear-gradient(120deg, #3E9F95 0%, #7C6CC6 55%, #A24DC2 100%);
+  --joker-band: linear-gradient(135deg, #9E4380 0%, #C47AAE 100%);
+  --font: 'Jost', 'Trebuchet MS', Arial, sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: linear-gradient(135deg, var(--bg-a) 0%, var(--bg-b) 42%, var(--bg-c) 80%, var(--bg-d) 100%) fixed, var(--bg-a);
+  color: var(--ink); font-family: var(--font); font-size: 18px;
+  padding-inline: clamp(16px, 4vw, 56px); padding-block: 28px 40px;
+  overflow-x: hidden; position: relative;
+}
+.rays { position: fixed; pointer-events: none; opacity: .5; z-index: 0; }
+.rays.r1 { right: -90px; top: -90px; width: 360px; }
+.rays.r2 { left: -120px; bottom: -120px; width: 420px; }
+.wrap { position: relative; z-index: 1; max-width: 1400px; margin-inline: auto; display: flex; flex-direction: column; gap: 28px; }
+
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.brand small { display: block; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--ink-soft); }
+.brand h1 { font-size: clamp(36px, 5vw, 64px); font-weight: 400; letter-spacing: 3px; text-transform: uppercase; line-height: 1.05; text-wrap: balance; }
+.wordmark { font-size: 20px; letter-spacing: 2px; font-weight: 500; text-align: right; }
+.wordmark span { display: block; font-size: 13px; font-weight: 300; letter-spacing: 1px; color: var(--ink-soft); }
+
+.rail { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.rail .label { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-soft); margin-right: 6px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; }
+.chip { border: 2px solid var(--line); background: var(--glass); border-radius: 999px; padding: 8px 18px; font-size: 17px; transition: background .2s, color .2s; }
+.chip[aria-pressed="true"] { background: var(--card); color: var(--card-ink); border-color: var(--card); font-weight: 600; }
+.chip .tick { color: var(--mint); margin-left: 6px; }
+.chip[aria-pressed="true"] .tick { color: #2C8C8C; }
+.step { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--line); background: transparent; font-size: 22px; line-height: 1; }
+.step:disabled { opacity: .35; cursor: default; }
+
+.hats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 24px; }
+.hat { border: 2px solid var(--line); background: var(--glass); border-radius: 32px; padding: 24px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.hat-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.hat-head h2 { font-size: 28px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; }
+.left { font-size: 15px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.pile { display: flex; gap: 6px; flex-wrap: wrap; }
+.pile i { width: 18px; height: 26px; border-radius: 4px; border: 1.5px solid var(--line); background: var(--glass-strong); transition: opacity .3s, transform .3s; }
+.pile i.out { opacity: .15; transform: translateY(4px); }
+
+.stage { perspective: 1400px; min-height: 290px; display: grid; }
+.card { position: relative; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.2,.8,.2,1); border-radius: 24px; min-height: 290px; }
+.card.flipped { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; }
+.back { border: 2px dashed var(--line); background: var(--glass); align-items: center; justify-content: center; gap: 8px; text-align: center; padding: 24px; }
+.back b { font-size: 26px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; }
+.back span { color: var(--ink-soft); font-size: 16px; }
+.back.spinning b { animation: jitter .12s linear infinite; }
+.front { transform: rotateY(180deg); background: var(--card); color: var(--card-ink); box-shadow: 0 24px 60px rgba(20,10,40,.35); }
+.band { padding: 18px 24px; color: var(--ink); display: flex; flex-direction: column; gap: 6px; }
+.band small { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; opacity: .85; }
+.band strong { font-size: clamp(22px, 2.4vw, 30px); font-weight: 500; text-transform: uppercase; letter-spacing: .5px; line-height: 1.1; text-wrap: balance; }
+.body { padding: 18px 24px 22px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.body p { font-size: clamp(19px, 1.8vw, 23px); line-height: 1.3; text-wrap: pretty; }
+.body .hint { font-size: 15px; color: var(--card-soft); }
+.twist .body p { font-size: clamp(26px, 2.8vw, 36px); font-weight: 500; line-height: 1.15; }
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.draw { flex: 1; min-width: 200px; border: 0; border-radius: 999px; padding: 16px 24px; background: var(--card); color: var(--card-ink); font-size: 20px; font-weight: 600; letter-spacing: .5px; box-shadow: 0 10px 30px rgba(20,10,40,.25); transition: transform .15s; }
+.draw:hover:not(:disabled) { transform: translateY(-2px); }
+.draw:disabled { opacity: .45; cursor: default; }
+.note { min-height: 22px; font-size: 15px; color: var(--mint); }
+
+.board h2 { font-size: 22px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+.table-wrap { overflow-x: auto; border: 2px solid var(--line); border-radius: 24px; background: var(--glass); }
+table { width: 100%; border-collapse: collapse; min-width: 560px; }
+th, td { text-align: left; padding: 12px 18px; font-size: 17px; vertical-align: top; }
+th { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-soft); font-weight: 400; border-bottom: 1px solid var(--line); }
+tbody tr { cursor: pointer; transition: background .2s; }
+tbody tr + tr td { border-top: 1px solid rgba(246,244,250,.18); }
+tbody tr:hover { background: var(--glass); }
+tbody tr.cur { background: var(--glass-strong); }
+td.empty { color: var(--ink-soft); }
+
+footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 14px; color: var(--ink-soft); }
+.reset { border: 2px solid var(--line); background: transparent; border-radius: 999px; padding: 8px 18px; font-size: 15px; }
+.reset.armed { background: #F6D0E4; color: #5A1F48; border-color: #F6D0E4; font-weight: 600; }
+
+@keyframes jitter { 0% { transform: translateY(-2px) } 50% { transform: translateY(2px) } 100% { transform: translateY(-2px) } }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } .back.spinning b { animation: none; } }
+</style>
+<style>*{box-sizing:border-box;margin:0;padding:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+<svg class="rays r1" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
+<svg class="rays r2" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
+
+<div class="wrap">
+  <header>
+    <div class="brand"><small>Т—ДЖЕМ · игра за 40 минут</small><h1>Шляпа</h1></div>
+    <div class="wordmark">Т—УНИВЕРСИТЕТ<span>Институт сквозных технологий</span></div>
+  </header>
+
+  <div class="rail" id="rail" aria-label="Команды"></div>
+
+  <section class="hats">
+    <div class="hat" id="hat-theme"></div>
+    <div class="hat" id="hat-twist"></div>
+  </section>
+
+  <section class="board">
+    <h2>Кто что вытянул</h2>
+    <div class="table-wrap"><table><thead><tr><th style="width:18%">Команда</th><th style="width:47%">Тема</th><th>Ограничение</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </section>
+
+  <footer>
+    <span>Вытянутое уходит из шляпы. Перетянул — старая карточка возвращается для других команд, но этой команде уже не выпадет.</span>
+    <button class="reset" id="reset">Сбросить всё</button>
+  </footer>
+</div>
+
+<script>
+const KINDS = {
+  theme: {
+    title: 'Тема', verb: 'тему', band: 'var(--theme-band)', small: 'Кейс',
+    items: [
+      { t: 'Беспилотные системы', d: 'Игра про оператора дронов: доставка, спасение или гонки.', h: 'Что делает оператор, когда что-то идёт не по плану?' },
+      { t: 'Цифровое строительство', d: 'Градостроитель, в котором игрок проектирует умный город.', h: 'Какое решение инженера игрок почувствует на себе?' },
+      { t: 'Машинное обучение и ИИ', d: 'ИИ — напарник или противник, который учится на действиях игрока.', h: 'Как игрок заметит, что ИИ чему-то научился?' },
+      { t: 'Медиатехнологии', d: 'Игра про блогера, телеканал или медиастудию.', h: 'Что для медиа считается победой?' },
+      { t: 'Web-разработка и дизайн', d: 'Игрок строит сайт-вселенную или чинит сломанный интерфейс.', h: 'Чем удобный сайт отличается от неудобного?' },
+      { t: 'Международный бизнес', d: 'Торговая стратегия между странами и компаниями.', h: 'Что меняется, когда партнёр живёт по другим правилам?' },
+      { t: 'Разработка игр', d: 'Игра про собственную игровую студию: от идеи до релиза.', h: 'Какие решения студии игрок примет сам?' },
+      { t: 'Джокер', d: 'Выберите любое направление ИСТ — или совместите два.', h: 'Например: дроны + ИИ, умный город + бизнес.', joker: true }
+    ]
+  },
+  twist: {
+    title: 'Ограничение', verb: 'ограничение', band: 'var(--twist-band)', small: 'Твист · 20-я минута',
+    items: [
+      { t: 'Одна сессия — не дольше 30 секунд' }, { t: 'Играют одной рукой в метро' },
+      { t: 'В игре нет ни слова текста' }, { t: 'Только кооператив на двоих' },
+      { t: 'Всё управление — одна кнопка' }, { t: 'Главный герой — не человек' },
+      { t: 'Игрок не может проиграть' }, { t: 'Всё происходит в одной комнате' }
+    ]
+  }
+};
+const KEY = 'tjam-hat-v1';
+const MIN_T = 2, MAX_T = 8;
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let S = load() || fresh(4);
+let busy = false;
+
+function fresh(n) { return { n, cur: 0, held: { theme: {}, twist: {} }, rejected: { theme: {}, twist: {} } }; }
+function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); return s && s.held ? s : null; } catch { return null; } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+
+// What is physically in the hat: everything no team currently holds.
+function inHat(kind) { const held = new Set(Object.values(S.held[kind])); return KINDS[kind].items.map((_, i) => i).filter(i => !held.has(i)); }
+// What this team may draw: in the hat, minus what it already rejected.
+function poolFor(kind, team) { const rej = new Set(S.rejected[kind][team] || []); return inHat(kind).filter(i => !rej.has(i)); }
+
+function rays(svg) {
+  const cols = ['#9FE6D4', '#C99BE4', '#E9A9D0', '#A7B4EC'];
+  let out = '';
+  for (let k = 0; k < 36; k++) {
+    const a = k / 36 * Math.PI * 2, r1 = 52, r2 = 52 + 26 + (k % 3) * 8;
+    out += `<line x1="${(Math.cos(a) * r1).toFixed(1)}" y1="${(Math.sin(a) * r1).toFixed(1)}" x2="${(Math.cos(a) * r2).toFixed(1)}" y2="${(Math.sin(a) * r2).toFixed(1)}" stroke="${cols[k % 4]}" stroke-width="2.4" stroke-linecap="round"/>`;
+  }
+  svg.innerHTML = out;
+}
+document.querySelectorAll('.rays').forEach(rays);
+
+function esc(s) { return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+function frontHTML(kind, idx) {
+  const K = KINDS[kind], it = K.items[idx];
+  const band = it.joker ? 'var(--joker-band)' : K.band;
+  if (kind === 'theme') return `<div class="band" style="background:${band}"><small>${K.small}</small><strong>${esc(it.t)}</strong></div><div class="body"><p>${esc(it.d)}</p><p class="hint">Подумайте: ${esc(it.h)}</p></div>`;
+  return `<div class="band" style="background:${band}"><small>${K.small}</small><strong>Ограничение</strong></div><div class="body"><p>${esc(it.t)}</p><p class="hint">Встройте его в игру. Обыграли — +2 балла.</p></div>`;
+}
+
+function renderHat(kind) {
+  const K = KINDS[kind], box = document.getElementById('hat-' + kind);
+  const mine = S.held[kind][S.cur];
+  const hat = new Set(inHat(kind));
+  const pool = poolFor(kind, S.cur);
+  const pile = K.items.map((_, i) => `<i class="${hat.has(i) ? '' : 'out'}"></i>`).join('');
+  const label = mine == null ? `Вытянуть ${K.verb}` : `Перетянуть ${K.verb}`;
+  box.innerHTML = `
+    <div class="hat-head"><h2>${K.title}</h2><span class="left">в шляпе ${hat.size} из ${K.items.length}</span></div>
+    <div class="pile" aria-hidden="true">${pile}</div>
+    <div class="stage"><div class="card ${mine != null ? 'flipped' : ''}" id="card-${kind}">
+      <div class="face back"><b>Команда ${S.cur + 1}</b><span>${K.title.toLowerCase()} ещё в шляпе</span></div>
+      <div class="face front ${kind}">${mine != null ? frontHTML(kind, mine) : ''}</div>
+    </div></div>
+    <div class="actions"><button class="draw" id="draw-${kind}" ${pool.length && !busy ? '' : 'disabled'}>${label}</button></div>
+    <div class="note" id="note-${kind}" role="status">${pool.length ? '' : 'Для этой команды в шляпе больше ничего нет'}</div>`;
+  box.querySelector('.draw').addEventListener('click', () => draw(kind));
+}
+
+function renderRail() {
+  const rail = document.getElementById('rail');
+  let h = '<span class="label">Команда</span>';
+  for (let t = 0; t < S.n; t++) {
+    const done = S.held.theme[t] != null;
+    h += `<button class="chip" aria-pressed="${t === S.cur}" data-t="${t}">${t + 1}${done ? '<span class="tick">●</span>' : ''}</button>`;
+  }
+  h += `<button class="step" id="minus" aria-label="Убрать команду" ${S.n <= MIN_T || busy ? 'disabled' : ''}>−</button><button class="step" id="plus" aria-label="Добавить команду" ${S.n >= MAX_T || busy ? 'disabled' : ''}>+</button>`;
+  rail.innerHTML = h;
+  rail.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => select(+b.dataset.t)));
+  rail.querySelector('#minus').addEventListener('click', () => setCount(S.n - 1));
+  rail.querySelector('#plus').addEventListener('click', () => setCount(S.n + 1));
+}
+
+function renderRows() {
+  let h = '';
+  for (let t = 0; t < S.n; t++) {
+    const th = S.held.theme[t], tw = S.held.twist[t];
+    h += `<tr class="${t === S.cur ? 'cur' : ''}" data-t="${t}"><td>Команда ${t + 1}</td>
+      <td class="${th == null ? 'empty' : ''}">${th == null ? '—' : esc(KINDS.theme.items[th].t)}</td>
+      <td class="${tw == null ? 'empty' : ''}">${tw == null ? '—' : esc(KINDS.twist.items[tw].t)}</td></tr>`;
+  }
+  const body = document.getElementById('rows');
+  body.innerHTML = h;
+  body.querySelectorAll('tr').forEach(r => r.addEventListener('click', () => select(+r.dataset.t)));
+}
+
+function render() { renderRail(); renderHat('theme'); renderHat('twist'); renderRows(); }
+
+function select(t) { if (busy) return; S.cur = t; save(); render(); }
+
+function setCount(n) {
+  if (busy || n < MIN_T || n > MAX_T) return;
+  // Removed teams put their cards back into the hat.
+  for (const kind of ['theme', 'twist']) for (let t = n; t < S.n; t++) { delete S.held[kind][t]; delete S.rejected[kind][t]; }
+  S.n = n; if (S.cur >= n) S.cur = n - 1; save(); render();
+}
+
+function draw(kind) {
+  if (busy) return;
+  const team = S.cur, pool = poolFor(kind, team);
+  if (!pool.length) return;
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  const old = S.held[kind][team];
+  busy = true;
+  render();
+
+  const card = document.getElementById('card-' + kind);
+  const back = card.querySelector('.back');
+  const label = back.querySelector('b');
+  const finish = () => {
+    if (old != null) (S.rejected[kind][team] ||= []).push(old);
+    S.held[kind][team] = pick;
+    save();
+    card.querySelector('.front').innerHTML = frontHTML(kind, pick);
+    back.classList.remove('spinning');
+    requestAnimationFrame(() => card.classList.add('flipped'));
+    setTimeout(() => { busy = false; render(); }, reduced ? 0 : 750);
+  };
+
+  if (old != null) card.classList.remove('flipped');
+  if (reduced) return finish();
+
+  // Rummage in the hat: names flicker fast, then slow down before the reveal.
+  back.classList.add('spinning');
+  back.querySelector('span').textContent = 'тянем из шляпы…';
+  const names = pool.length > 1 ? pool : KINDS[kind].items.map((_, i) => i);
+  let step = 0, delay = 60;
+  const tick = () => {
+    const i = names[(step + Math.floor(Math.random() * names.length)) % names.length];
+    const it = KINDS[kind].items[i];
+    label.textContent = it.t;
+    step++; delay *= 1.13;
+    if (delay < 420) setTimeout(tick, delay); else setTimeout(finish, 250);
+  };
+  setTimeout(tick, old != null ? 450 : 0);
+}
+
+const resetBtn = document.getElementById('reset');
+let armTimer;
+resetBtn.addEventListener('click', () => {
+  if (busy) return;
+  if (!resetBtn.classList.contains('armed')) {
+    resetBtn.classList.add('armed'); resetBtn.textContent = 'Точно сбросить? Нажмите ещё раз';
+    armTimer = setTimeout(() => { resetBtn.classList.remove('armed'); resetBtn.textContent = 'Сбросить всё'; }, 3000);
+    return;
+  }
+  clearTimeout(armTimer);
+  S = fresh(S.n); save(); render();
+  resetBtn.classList.remove('armed'); resetBtn.textContent = 'Сбросить всё';
+});
+
+render();
+</script>
+</body>
+</html>

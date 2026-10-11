@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Т—ДЖЕМ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300..700&display=swap">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; background: linear-gradient(135deg, #165560 0%, #2C8C8C 42%, #7C6CC6 80%, #A24DC2 100%) fixed, #165560; color: #F6F4FA; font-family: 'Jost', 'Trebuchet MS', Arial, sans-serif; padding: 48px clamp(16px, 5vw, 64px); }
+  .wrap { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+  small { font-size: 14px; letter-spacing: 3px; text-transform: uppercase; opacity: .75; }
+  h1 { font-size: clamp(48px, 9vw, 112px); font-weight: 400; letter-spacing: 4px; line-height: 1; }
+  p.lead { font-size: 20px; font-weight: 300; max-width: 60ch; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 20px; }
+  a.card { display: flex; flex-direction: column; gap: 8px; padding: 28px; border: 2px solid rgba(246,244,250,.55); border-radius: 28px; background: rgba(246,244,250,.1); color: inherit; text-decoration: none; transition: background .2s, transform .2s; }
+  a.card:hover, a.card:focus-visible { background: rgba(246,244,250,.2); transform: translateY(-2px); outline: none; }
+  a.card b { font-size: 28px; font-weight: 500; }
+  a.card span { font-size: 17px; font-weight: 300; opacity: .85; }
+  footer { font-size: 14px; opacity: .7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div><small>Т—Университет · Институт сквозных технологий</small><h1>Т—ДЖЕМ</h1></div>
+  <p class="lead">Игра за 40 минут. Команды тянут тему и ограничение из шляпы, придумывают концепцию игры на листе А3 и защищают её за 2 минуты.</p>
+  <div class="grid">
+    <a class="card" href="hat.html"><b>Шляпа</b><span>Тема и ограничение для каждой команды, без повторов</span></a>
+    <a class="card" href="timer.html"><b>Таймер</b><span>40 минут работы по фазам и 2 минуты на защиту</span></a>
+    <a class="card" href="print/cards.pdf"><b>Карточки</b><span>PDF для печати, если нет проектора</span></a>
+  </div>
+  <footer>Как провести джем — в README репозитория.</footer>
+</div>
+</body>
+</html>
