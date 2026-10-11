@@ -94,6 +94,12 @@ footer { display: flex; justify-content: space-between; align-items: center; fle
 .reset { border: 2px solid var(--line); background: transparent; border-radius: 999px; padding: 8px 18px; font-size: 15px; }
 .reset.armed { background: #F6D0E4; color: #5A1F48; border-color: #F6D0E4; font-weight: 600; }
 
+.theme-front .band { padding: 12px 24px; }
+.theme-front .body { justify-content: center; gap: 16px; padding: 20px 24px 26px; }
+.theme-front .big { font-size: clamp(40px, 5vw, 76px); font-weight: 500; line-height: 1.02; text-transform: uppercase; letter-spacing: 1px; text-wrap: balance; color: #165560; }
+.theme-front.joker .big { color: #9E4380; }
+.theme-front .ex { font-size: clamp(17px, 1.6vw, 21px); color: var(--card-soft); letter-spacing: .5px; }
+
 @keyframes jitter { 0% { transform: translateY(-2px) } 50% { transform: translateY(2px) } 100% { transform: translateY(-2px) } }
 @media (prefers-reduced-motion: reduce) { .card { transition: none; } .back.spinning b { animation: none; } }
 </style>
@@ -133,14 +139,14 @@ const KINDS = {
   theme: {
     title: 'Тема', verb: 'тему', band: 'var(--theme-band)', small: 'Тема',
     items: [
-      {"t": "Взгляд сверху", "dir": "Беспилотные системы", "d": "Придумайте игру на эту тему. Как её понять — решаете вы."},
-      {"t": "Живой город", "dir": "Цифровое строительство", "d": "Придумайте игру на эту тему. Как её понять — решаете вы."},
-      {"t": "Он учится", "dir": "Машинное обучение и ИИ", "d": "Придумайте игру на эту тему. Как её понять — решаете вы."},
-      {"t": "Одна новость", "dir": "Медиатехнологии", "d": "Придумайте игру на эту тему. Как её понять — решаете вы."},
-      {"t": "Ссылка в другой мир", "dir": "Web-разработка и дизайн", "d": "Придумайте игру на эту тему. Как её понять — решаете вы."},
-      {"t": "Чужие правила", "dir": "Международный бизнес", "d": "Придумайте игру на эту тему. Как её понять — решаете вы."},
-      {"t": "Игра внутри игры", "dir": "Разработка игр", "d": "Придумайте игру на эту тему. Как её понять — решаете вы."},
-      {"t": "Своя тема", "dir": "Джокер", "d": "Придумайте тему сами: любое направление ИСТ или смесь двух.", "joker": true}
+      {"t": "Взгляд сверху", "dir": "Беспилотные системы", "ex": "дроны · птицы · шпионы"},
+      {"t": "Живой город", "dir": "Цифровое строительство", "ex": "стройка · соседи · умный дом"},
+      {"t": "Он учится", "dir": "Машинное обучение и ИИ", "ex": "питомец · соперник · робот"},
+      {"t": "Одна новость", "dir": "Медиатехнологии", "ex": "блогер · сенсация · фейк"},
+      {"t": "Ссылка в другой мир", "dir": "Web-разработка и дизайн", "ex": "портал · браузер · лабиринт"},
+      {"t": "Чужие правила", "dir": "Международный бизнес", "ex": "путешествие · торговля · инопланетяне"},
+      {"t": "Игра внутри игры", "dir": "Разработка игр", "ex": "баг · разработчик · NPC"},
+      {"t": "Своя тема", "dir": "Джокер", "joker": true, "ex": "любое направление ИСТ · смесь двух"}
     ]
   },
   twist: {
@@ -185,7 +191,7 @@ function esc(s) { return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 function frontHTML(kind, idx) {
   const K = KINDS[kind], it = K.items[idx];
   const band = it.joker ? 'var(--joker-band)' : K.band;
-  if (kind === 'theme') return `<div class="band" style="background:${band}"><small>${esc(it.dir)}</small><strong>${esc(it.t)}</strong></div><div class="body"><p>${esc(it.d)}</p></div>`;
+  if (kind === 'theme') return `<div class="band" style="background:${band}"><small>Тема · ${esc(it.dir)}</small></div><div class="body"><strong class="big">${esc(it.t)}</strong><span class="ex">${esc(it.ex)}</span></div>`;
   return `<div class="band" style="background:${band}"><small>${K.small}</small><strong>Ограничение</strong></div><div class="body"><p>${esc(it.t)}</p><p class="hint">Встройте его в игру. Обыграли — +2 балла.</p></div>`;
 }
 
@@ -201,7 +207,7 @@ function renderHat(kind) {
     <div class="pile" aria-hidden="true">${pile}</div>
     <div class="stage"><div class="card ${mine != null ? 'flipped' : ''}" id="card-${kind}">
       <div class="face back"><b>Команда ${S.cur + 1}</b><span>${K.title.toLowerCase()} ещё в шляпе</span></div>
-      <div class="face front ${kind}">${mine != null ? frontHTML(kind, mine) : ''}</div>
+      <div class="face front ${kind}${kind === 'theme' ? ' theme-front' + (mine != null && KINDS.theme.items[mine].joker ? ' joker' : '') : ''}">${mine != null ? frontHTML(kind, mine) : ''}</div>
     </div></div>
     <div class="actions"><button class="draw" id="draw-${kind}" ${pool.length && !busy ? '' : 'disabled'}>${label}</button></div>
     <div class="note" id="note-${kind}" role="status">${pool.length ? '' : 'Для этой команды в шляпе больше ничего нет'}</div>`;
@@ -263,6 +269,7 @@ function draw(kind) {
     S.held[kind][team] = pick;
     save();
     card.querySelector('.front').innerHTML = frontHTML(kind, pick);
+    if (kind === 'theme') card.querySelector('.front').className = 'face front theme theme-front' + (KINDS.theme.items[pick].joker ? ' joker' : '');
     back.classList.remove('spinning');
     requestAnimationFrame(() => card.classList.add('flipped'));
     setTimeout(() => { busy = false; render(); }, reduced ? 0 : 750);
