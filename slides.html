@@ -9,14 +9,17 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; background: #0E3A40; overflow: hidden; }
   body { font-family: 'Jost', 'Trebuchet MS', Arial, sans-serif; cursor: default; }
-  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center; overflow: hidden; }
+  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center; }
 
-  .slide { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity .7s ease, transform .9s cubic-bezier(.2,.8,.2,1), visibility 0s .7s; transform: scale(1.03); background-size: 220% 220%; animation: drift 24s ease-in-out infinite alternate; }
+  .slide { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity .7s ease, transform .9s cubic-bezier(.2,.8,.2,1), visibility 0s .7s; transform: scale(1.03); isolation: isolate; }
+  /* background bleeds past the 16:9 stage so any screen ratio is filled */
+  .slide::before { content: ''; position: absolute; inset: -700px -900px; z-index: -1; background-image: var(--bg); background-size: 220% 220%; animation: drift 24s ease-in-out infinite alternate; }
+  .slide { background-color: transparent; }
   .slide.on { opacity: 1; visibility: visible; transform: none; transition: opacity .7s ease, transform .9s cubic-bezier(.2,.8,.2,1); }
-  .teal { background-image: linear-gradient(135deg, #12505A 0%, #2C8C8C 50%, #1E6E72 100%); color: #F6F4FA; }
-  .pink { background-image: linear-gradient(135deg, #8E3A74 0%, #C47AAE 50%, #A2558A 100%); color: #FBF5FA; }
-  .viol { background-image: linear-gradient(135deg, #633DA2 0%, #A266B8 50%, #7C51B0 100%); color: #F8F4FB; }
-  .multi { background-image: linear-gradient(120deg, #3E9F95 0%, #7C6CC6 45%, #A24DC2 75%, #6C7FD0 100%); color: #FBF7FC; }
+  .teal { --bg: linear-gradient(135deg, #12505A 0%, #2C8C8C 50%, #1E6E72 100%); color: #F6F4FA; }
+  .pink { --bg: linear-gradient(135deg, #8E3A74 0%, #C47AAE 50%, #A2558A 100%); color: #FBF5FA; }
+  .viol { --bg: linear-gradient(135deg, #633DA2 0%, #A266B8 50%, #7C51B0 100%); color: #F8F4FB; }
+  .multi { --bg: linear-gradient(120deg, #3E9F95 0%, #7C6CC6 45%, #A24DC2 75%, #6C7FD0 100%); color: #FBF7FC; }
 
   .abs { position: absolute; }
   h1, h2, h3 { font-weight: 400; }
@@ -57,10 +60,49 @@
   @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
   .on .pulse { animation: pulse 2.4s ease-in-out 2s infinite; }
 
+
+  /* page behind the stage takes the slide's colour, so no dark bars on non-16:9 screens */
+  body.teal { background: linear-gradient(135deg, #12505A, #2C8C8C); } body.pink { background: linear-gradient(135deg, #8E3A74, #C47AAE); }
+  body.viol { background: linear-gradient(135deg, #633DA2, #A266B8); } body.multi { background: linear-gradient(120deg, #3E9F95, #7C6CC6 50%, #A24DC2); }
+  body { transition: background .8s; }
+
+  /* soft light orbs drifting behind content */
+  .orb { position: absolute; border-radius: 50%; pointer-events: none; mix-blend-mode: screen; opacity: .5; animation: orb 22s ease-in-out infinite alternate; }
+  .orb.o1 { width: 1100px; height: 1100px; left: -300px; top: -400px; background: radial-gradient(circle, rgba(159,230,212,.45) 0%, rgba(159,230,212,0) 60%); }
+  .orb.o2 { width: 1000px; height: 1000px; right: -300px; bottom: -420px; background: radial-gradient(circle, rgba(233,169,208,.45) 0%, rgba(233,169,208,0) 60%); animation-duration: 28s; animation-direction: alternate-reverse; }
+  @keyframes orb { from { transform: translate(0, 0) scale(1); } to { transform: translate(220px, 140px) scale(1.15); } }
+
+  /* ИСТ ray fan: bars bloom out one by one, then breathe */
+  .fan .bar { transform-box: fill-box; transform-origin: 0% 50%; opacity: 0; }
+  .on .fan .bar { animation: bloom .9s cubic-bezier(.2,1.35,.4,1) var(--d) both, breathe 3.6s ease-in-out calc(var(--d) + 1.2s) infinite alternate; }
+  @keyframes bloom { from { transform: scaleX(0); opacity: 0; } to { transform: scaleX(1); opacity: 1; } }
+  @keyframes breathe { from { transform: scaleX(1); opacity: 1; } to { transform: scaleX(.8); opacity: .75; } }
+  /* ИСТ ray wave: a light runs along the rays */
+  .wave line { opacity: 0; }
+  .on .wave line { animation: shimmer 3.2s ease-in-out var(--d) infinite; }
+  @keyframes shimmer { 0%, 100% { opacity: .2; } 50% { opacity: .95; } }
+  /* timeline dot */
+  .dot { width: 18px; height: 18px; border-radius: 50%; background: #FBF5FA; box-shadow: 0 0 24px 6px rgba(251,245,250,.7); opacity: 0; }
+  .on .dot { animation: travel 6s cubic-bezier(.45,0,.2,1) 1.6s infinite; }
+  @keyframes travel { 0% { opacity: 0; transform: translateX(0); } 8% { opacity: 1; } 85% { opacity: 1; transform: translateX(1646px); } 100% { opacity: 0; transform: translateX(1646px); } }
+  .on .wipe { animation-name: wipe; animation-duration: 1.1s; }
+  @keyframes wipe { from { opacity: 1; clip-path: inset(0 100% 0 0); transform: translateX(-20px); } to { opacity: 1; clip-path: inset(0 0 0 0); transform: none; } }
+
+  /* presenter window */
+  body.presenting { overflow: auto; background: #0E2A30; color: #F6F4FA; }
+  #presenter { padding: 32px; display: grid; gap: 24px; grid-template-columns: 2fr 1fr; min-height: 100vh; }
+  #presenter .now { font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: #9FE6D4; }
+  #presenter .title { font-size: 40px; margin-top: 6px; }
+  #presenter .note { font-size: 28px; line-height: 1.45; margin-top: 24px; max-width: 60ch; }
+  #presenter .side { display: flex; flex-direction: column; gap: 20px; }
+  #presenter .clock { font-size: 72px; font-variant-numeric: tabular-nums; }
+  #presenter .next { padding: 20px; border: 2px solid rgba(246,244,250,.3); border-radius: 16px; font-size: 22px; }
+  #presenter .btns { display: flex; gap: 12px; }
+  #presenter button { font: inherit; font-size: 22px; padding: 14px 24px; border-radius: 999px; border: 2px solid rgba(246,244,250,.5); background: rgba(246,244,250,.1); color: inherit; cursor: pointer; flex: 1; }
+  #presenter .hint { font-size: 15px; color: rgba(246,244,250,.6); }
   #bar { position: fixed; left: 0; bottom: 0; height: 4px; background: rgba(246,244,250,.55); transition: width .6s ease; z-index: 5; }
-  #notes { position: fixed; left: 24px; right: 24px; bottom: 24px; padding: 16px 20px; border-radius: 16px; background: rgba(10,30,34,.88); color: #F6F4FA; font-size: 18px; line-height: 1.45; z-index: 6; }
   #help { position: fixed; right: 16px; top: 12px; color: rgba(246,244,250,.55); font-size: 13px; z-index: 6; transition: opacity 1s; }
-  @media (prefers-reduced-motion: reduce) { .on .a, .slide, .float { animation: none !important; opacity: 1 !important; } .slide { transition: opacity .3s; } }
+  @media (prefers-reduced-motion: reduce) { .on .a, .slide, .float, .orb, .on .fan .bar, .on .wave line, .on .dot { animation: none !important; opacity: 1 !important; } .slide { transition: opacity .3s; } }
 </style>
 </head>
 <body>
@@ -68,8 +110,8 @@
 
 <!-- 1. Cover -->
 <section class="slide teal" data-notes="Привет! Сегодня за 30 минут вы придумаете игру командой и защитите её перед жюри. Как на настоящем геймджеме, только быстрее.">
-  <img class="abs orn a fade float" style="left:1440px;top:40px;width:420px;height:257px;--o:.9;opacity:.9" src="assets/fan.png" alt="">
-  <img class="abs orn a left" style="left:40px;top:780px;width:700px;height:270px;opacity:.8;--d:200ms" src="assets/wave-a.png" alt="">
+  <svg class="abs fan" data-d="200" style="left:1400px;top:40px;width:460px;height:265px"></svg>
+  <svg class="abs wave" style="left:40px;top:790px;width:760px;height:250px"></svg>
   <img class="abs a pop" style="left:885px;top:170px;width:150px;height:160px;object-fit:contain;--d:300ms" src="assets/logo-dgtu.png" alt="Логотип ДГТУ">
   <h1 class="abs" id="coverTitle" style="left:128px;top:360px;width:1664px;font-size:200px;letter-spacing:8px;line-height:1.1;text-align:center">Т—ДЖЕМ</h1>
   <p class="abs a up" style="left:128px;top:600px;width:1664px;font-size:48px;font-weight:300;letter-spacing:2px;text-align:center;--d:1300ms">игра за 30 минут</p>
@@ -79,8 +121,8 @@
 
 <!-- 2. What -->
 <section class="slide teal" data-notes="Геймджемы проводят по всему миру, самый известный — Global Game Jam. Там за выходные делают целую игру. Мы сделаем первый и самый важный шаг: концепцию.">
-  <img class="abs orn a fade float slow" style="left:1240px;top:600px;width:620px;height:380px;--o:.9;--d:600ms" src="assets/fan.png" alt="">
-  <h2 class="abs h2 a left">Что такое геймджем</h2>
+  <svg class="abs fan" data-d="900" style="left:1280px;top:640px;width:580px;height:335px"></svg>
+  <h2 class="abs h2 a wipe">Что такое геймджем</h2>
   <p class="abs a up" style="left:128px;top:250px;width:1300px;font-size:72px;font-weight:300;line-height:1.25;--d:200ms">Соревнование, где команды придумывают и делают игру <b>за ограниченное время</b>.</p>
   <div class="abs col glass a up" style="left:128px;top:600px;width:520px;gap:8px;padding:40px;--d:600ms"><p class="lab" style="color:#9FE6D4">Обычно</p><p style="font-size:64px;font-weight:500;line-height:1.1"><span data-count="48">48</span>–<span data-count="72">72</span> часа</p><p style="font-size:28px;font-weight:300">и готовая игра</p></div>
   <div class="abs col solid a up" style="left:680px;top:600px;width:520px;gap:8px;padding:40px;--d:850ms"><p class="lab" style="color:#2C8C8C">Сегодня</p><p style="font-size:64px;font-weight:500;line-height:1.1"><span data-count="30">30</span> минут</p><p style="font-size:28px;font-weight:300">и концепция на листе А3</p></div>
@@ -88,7 +130,7 @@
 
 <!-- 3. Path -->
 <section class="slide pink" data-notes="Коротко пробегаем путь игры. Подчеркнуть: сегодня работаем только с первым шагом, и он самый важный — с него начинается любая студия.">
-  <h2 class="abs h2 a left">Путь игры от идеи до релиза</h2>
+  <h2 class="abs h2 a wipe">Путь игры от идеи до релиза</h2>
   <div class="abs a draw" style="left:128px;top:282px;width:1664px;height:3px;background:rgba(251,245,250,.6);--d:200ms"></div>
   <div class="abs col a up" style="left:128px;top:300px;width:314px;height:420px;gap:16px;padding:40px 28px;border-radius:32px;background:#FBF5FA;color:#5A1F48;box-shadow:0 16px 48px rgba(60,10,45,.25);--d:400ms"><p style="font-size:72px;font-weight:600;line-height:1">01</p><h3 style="font-size:32px;font-weight:600">Концепция</h3><p style="font-size:26px;line-height:1.35">Жанр, игрок, механика, мир</p><p class="pulse" style="font-size:24px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#9E4380;transform-origin:left">Мы здесь</p></div>
   <div class="abs col glass a up" style="left:466px;top:300px;width:314px;height:420px;gap:16px;padding:40px 28px;--d:550ms"><p style="font-size:72px;font-weight:300;line-height:1">02</p><h3 style="font-size:32px;font-weight:500">Прототип</h3><p style="font-size:26px;line-height:1.35;font-weight:300">Проверить, что играть интересно</p></div>
@@ -96,12 +138,12 @@
   <div class="abs col glass a up" style="left:1142px;top:300px;width:314px;height:420px;gap:16px;padding:40px 28px;--d:850ms"><p style="font-size:72px;font-weight:300;line-height:1">04</p><h3 style="font-size:32px;font-weight:500">Тестирование</h3><p style="font-size:26px;line-height:1.35;font-weight:300">Ловим баги и скуку</p></div>
   <div class="abs col glass a up" style="left:1480px;top:300px;width:314px;height:420px;gap:16px;padding:40px 28px;--d:1000ms"><p style="font-size:72px;font-weight:300;line-height:1">05</p><h3 style="font-size:32px;font-weight:500">Релиз</h3><p style="font-size:26px;line-height:1.35;font-weight:300">Игру находят и покупают</p></div>
   <p class="abs a fade" style="left:128px;top:800px;width:1100px;font-size:32px;font-weight:300;--d:1400ms">Большинство игр «умирает» на первом шаге: идея есть, а понятной концепции нет.</p>
-  <img class="abs orn a fade float" style="left:1240px;top:760px;width:640px;height:247px;--o:.7;--d:1500ms" src="assets/wave-b.png" alt="">
+  <svg class="abs wave" style="left:1200px;top:800px;width:680px;height:224px"></svg>
 </section>
 
 <!-- 4. Team -->
 <section class="slide teal" data-notes="Это та самая T-shaped модель, на которой строится Т-Университет: у каждого своя глубина, но все разбираются в общем деле. В команде 4–6 человек, роли можно делить на двоих.">
-  <h2 class="abs h2 a left">Команда в форме буквы Т</h2>
+  <h2 class="abs h2 a wipe">Команда в форме буквы Т</h2>
   <div class="abs a draw" style="left:128px;top:250px;width:1664px;padding:24px 40px;border-radius:24px 24px 0 0;background:rgba(246,244,250,.16);border:2px solid rgba(246,244,250,.6);--d:200ms"><p style="font-size:32px;font-weight:500">Общее для всех — одна игра. Помогаем друг другу.</p></div>
   <div class="abs col a grow" style="left:128px;top:348px;width:398px;height:440px;gap:12px;padding:32px;background:#E9A9D0;color:#2A1630;border-radius:0 0 24px 24px;--d:800ms"><h3 style="font-size:36px;font-weight:600">Геймдизайнер</h3><p style="font-size:26px;line-height:1.35">Механики и core loop: что делает игрок и зачем</p></div>
   <div class="abs col a grow" style="left:550px;top:348px;width:398px;height:360px;gap:12px;padding:32px;background:#C99BE4;color:#2A1630;border-radius:0 0 24px 24px;--d:950ms"><h3 style="font-size:36px;font-weight:600">Сценарист</h3><p style="font-size:26px;line-height:1.35">Мир, герой, лор в трёх предложениях</p></div>
@@ -112,7 +154,7 @@
 
 <!-- 5. Sheet -->
 <section class="slide viol" data-notes="Core loop — главный цикл игры: что игрок делает снова и снова и почему ему это нравится. Пример: в Subway Surfers бежишь, собираешь монеты, покупаешь скины. Это самое важное на листе.">
-  <h2 class="abs h2 a left">Что должно быть на листе А3</h2>
+  <h2 class="abs h2 a wipe">Что должно быть на листе А3</h2>
   <div class="abs col glass a pop" style="left:128px;top:260px;width:538px;height:276px;gap:12px;padding:40px;--d:200ms"><p class="lab" style="color:#D9C3F2">01</p><h3 style="font-size:40px;font-weight:500">Название и лого</h3><p style="font-size:26px;font-weight:300;line-height:1.35">Запоминается с первого раза</p></div>
   <div class="abs col glass a pop" style="left:691px;top:260px;width:538px;height:276px;gap:12px;padding:40px;--d:320ms"><p class="lab" style="color:#D9C3F2">02</p><h3 style="font-size:40px;font-weight:500">Жанр и референс</h3><p style="font-size:26px;font-weight:300;line-height:1.35">«Как Minecraft, но про дроны»</p></div>
   <div class="abs col glass a pop" style="left:1254px;top:260px;width:538px;height:276px;gap:12px;padding:40px;--d:440ms"><p class="lab" style="color:#D9C3F2">03</p><h3 style="font-size:40px;font-weight:500">Портрет игрока</h3><p style="font-size:26px;font-weight:300;line-height:1.35">Возраст, где и сколько играет, зачем</p></div>
@@ -124,13 +166,13 @@
 
 <!-- 6. Themes -->
 <section class="slide teal" data-notes="Это темы, а не задачи: игра не должна ничего решать. Тема — отправная точка для фантазии, направление ИСТ просто угадывается в ней. Тему тянем в Шляпе, повторов не будет.">
-  <h2 class="abs h2 a left">Темы: из направлений ИСТ</h2>
+  <h2 class="abs h2 a wipe">Темы: из направлений ИСТ</h2>
   <div id="themes"></div>
 </section>
 
 <!-- 7. Twist -->
 <section class="slide multi" data-notes="Слайд показываем в начале, чтобы знали, что будет ограничение, но тянем его только на 15-й минуте. В реальной разработке ограничения есть всегда: платформа, бюджет, сроки.">
-  <img class="abs orn a fade float" style="left:1300px;top:40px;width:560px;height:342px;--o:.9" src="assets/fan.png" alt="">
+  <svg class="abs fan" data-d="100" style="left:1300px;top:40px;width:560px;height:323px"></svg>
   <p class="abs a fade" style="left:128px;top:150px;width:900px;font-size:28px;letter-spacing:3px;text-transform:uppercase">15-я минута</p>
   <h2 class="abs a up" style="left:128px;top:200px;width:1100px;font-size:120px;font-weight:500;letter-spacing:2px;text-transform:uppercase;line-height:1.05;--d:150ms">Карта-твист</h2>
   <p class="abs a up" style="left:128px;top:350px;width:1100px;font-size:36px;font-weight:300;line-height:1.3;--d:300ms">Тянете ограничение и встраиваете его в игру. Обыграли — +2 балла.</p>
@@ -142,19 +184,20 @@
 
 <!-- 8. Timing -->
 <section class="slide pink" data-notes="Работа 30 минут, защита по 5 минут на команду (3 на рассказ, 2 на вопросы жюри). На 15-й минуте тянем ограничение в Шляпе, на 25-й напоминаем готовить выступление.">
-  <h2 class="abs h2 a left">Тайминг</h2>
+  <h2 class="abs h2 a wipe">Тайминг</h2>
   <div class="abs col a left" style="left:128px;top:300px;width:202px;height:300px;gap:12px;padding:32px 24px;border-radius:24px;background:rgba(251,245,250,.18);border:2px solid rgba(251,245,250,.6);--d:200ms"><p style="font-size:24px;letter-spacing:1px">0–5</p><h3 style="font-size:36px;font-weight:500">Роли</h3></div>
   <div class="abs col a left" style="left:342px;top:300px;width:404px;height:300px;gap:12px;padding:32px;border-radius:24px;background:rgba(251,245,250,.18);border:2px solid rgba(251,245,250,.6);--d:400ms"><p style="font-size:24px;letter-spacing:1px">5–15 мин</p><h3 style="font-size:36px;font-weight:500">Концепция</h3><p style="font-size:26px;font-weight:300;line-height:1.35">Жанр, игрок, лор</p></div>
   <div class="abs col a left" style="left:758px;top:300px;width:404px;height:300px;gap:12px;padding:32px;border-radius:24px;background:#FBF5FA;color:#5A1F48;--d:600ms"><p style="font-size:24px;letter-spacing:1px;font-weight:600">15 мин — ограничение!</p><h3 style="font-size:36px;font-weight:600">Доработка</h3><p style="font-size:26px;font-weight:300;line-height:1.35">Core loop, лого, обложка</p></div>
   <div class="abs col a left" style="left:1174px;top:300px;width:202px;height:300px;gap:12px;padding:32px 24px;border-radius:24px;background:rgba(251,245,250,.18);border:2px solid rgba(251,245,250,.6);--d:800ms"><p style="font-size:24px;letter-spacing:1px">25–30</p><h3 style="font-size:36px;font-weight:500">Питч</h3></div>
   <div class="abs col a left" style="left:1388px;top:300px;width:404px;height:300px;gap:12px;padding:32px;border-radius:24px;background:#5A1F48;--d:1000ms"><p style="font-size:24px;letter-spacing:1px">После · 5 мин</p><h3 style="font-size:36px;font-weight:500">Защита</h3><p style="font-size:26px;font-weight:300;line-height:1.35">3 на рассказ + 2 на вопросы</p></div>
   <div class="abs a draw" style="left:128px;top:630px;width:1664px;height:6px;border-radius:3px;background:linear-gradient(90deg, #FBF5FA 0%, #FBF5FA 75%, #5A1F48 75%);--d:1200ms"></div>
+  <div class="abs dot" style="left:119px;top:624px"></div>
   <p class="abs a fade" style="left:128px;top:690px;width:1300px;font-size:32px;font-weight:300;line-height:1.35;--d:1600ms">Таймер всё время на экране и сам напомнит о каждом переходе.<br>Защита — по 5 минут на команду: 3 на рассказ и 2 на вопросы жюри.</p>
 </section>
 
 <!-- 9. Criteria -->
 <section class="slide teal" data-notes="Максимум 20 баллов от жюри плюс 2 бонусных. После всех защит каждая команда вслух называет один чужой проект, который понравился больше всего. За себя нельзя. При ничьей решает жюри.">
-  <h2 class="abs h2 a left">Как оцениваем</h2>
+  <h2 class="abs h2 a wipe">Как оцениваем</h2>
   <div class="abs col glass a flip" style="left:128px;top:260px;width:398px;height:340px;gap:16px;padding:40px;--d:200ms"><p style="font-size:72px;font-weight:300;line-height:1;color:#9FE6D4">0–5</p><h3 style="font-size:40px;font-weight:500">Геймплей</h3><p style="font-size:26px;font-weight:300;line-height:1.35">Понятно, что делает игрок и почему хочется ещё</p></div>
   <div class="abs col glass a flip" style="left:550px;top:260px;width:398px;height:340px;gap:16px;padding:40px;--d:380ms"><p style="font-size:72px;font-weight:300;line-height:1;color:#9FE6D4">0–5</p><h3 style="font-size:40px;font-weight:500">Тема</h3><p style="font-size:26px;font-weight:300;line-height:1.35">Тема раскрыта и узнаётся в игре</p></div>
   <div class="abs col glass a flip" style="left:972px;top:260px;width:398px;height:340px;gap:16px;padding:40px;--d:560ms"><p style="font-size:72px;font-weight:300;line-height:1;color:#9FE6D4">0–5</p><h3 style="font-size:40px;font-weight:500">Аудитория</h3><p style="font-size:26px;font-weight:300;line-height:1.35">Ясно, для кого игра и где её найдут</p></div>
@@ -165,18 +208,18 @@
 
 <!-- 10. Go -->
 <section class="slide multi" data-notes="Включаем таймер на 30 минут. Показываем Шляпу, раздаём листы А3 и фломастеры.">
-  <img class="abs orn a fade float" style="left:1300px;top:40px;width:560px;height:342px;--o:.9" src="assets/fan.png" alt="">
-  <img class="abs orn a left" style="left:40px;top:720px;width:800px;height:309px;opacity:.8;--d:200ms" src="assets/wave-b.png" alt="">
-  <p class="abs a fade" style="left:128px;top:250px;width:1664px;font-size:40px;font-weight:300;letter-spacing:4px;text-transform:uppercase;text-align:center;--d:200ms">Поехали</p>
-  <h1 class="abs a pop" style="left:128px;top:320px;width:1664px;font-size:320px;letter-spacing:8px;line-height:1;text-align:center;font-variant-numeric:tabular-nums;--d:400ms"><span data-count="30" data-ms="1400">30</span>:00</h1>
-  <p class="abs a up" style="left:128px;top:680px;width:1664px;font-size:36px;font-weight:300;text-align:center;--d:1600ms">Тяните тему и распределяйте роли</p>
-  <img class="abs a fade" style="left:1232px;top:920px;width:560px;height:45px;object-fit:contain;--d:1800ms" src="assets/t-university.png" alt="Т—Университет">
+  <svg class="abs fan" data-d="900" style="left:1480px;top:60px;width:380px;height:219px"></svg>
+  <p class="abs a fade" style="left:128px;top:250px;width:1664px;font-size:40px;font-weight:300;letter-spacing:12px;text-transform:uppercase;text-align:center;--d:200ms">Поехали</p>
+  <h1 class="abs a pop" style="left:128px;top:330px;width:1664px;font-size:300px;letter-spacing:8px;line-height:1;text-align:center;font-variant-numeric:tabular-nums;--d:400ms"><span data-count="30" data-ms="1400">30</span>:00</h1>
+  <div class="abs a draw" style="left:760px;top:680px;width:400px;height:3px;background:rgba(251,247,252,.6);--d:1500ms;transform-origin:center"></div>
+  <p class="abs a up" style="left:128px;top:720px;width:1664px;font-size:36px;font-weight:300;text-align:center;--d:1700ms">Тяните тему и распределяйте роли</p>
+  <img class="abs a fade" style="left:1232px;top:940px;width:560px;height:45px;object-fit:contain;--d:2000ms" src="assets/t-university.png" alt="Т—Университет">
 </section>
 
 </div>
 <div id="bar"></div>
-<div id="notes" hidden></div>
-<div id="help">← → листать · F полный экран · N заметки</div>
+<div id="help">← → листать · F полный экран · P окно ведущего с заметками</div>
+<div id="presenter" hidden></div>
 
 <script>
 // Theme cards: same list as hat.html
@@ -197,9 +240,43 @@ document.getElementById('themes').outerHTML = THEMES.map(([dir, t], i) => {
 const ct = document.getElementById('coverTitle');
 ct.innerHTML = [...ct.textContent].map((c, i) => `<span class="a letter" style="--d:${500 + i * 90}ms">${c}</span>`).join('');
 
+
+// --- vector ИСТ ornaments ---
+const PAL = ['#7FD6C2', '#8FA6E6', '#B98BE0', '#E9A9D0'];
+function fanSVG(svg) {
+  const d0 = +(svg.dataset.d || 0), n = 9, defs = [], bars = [];
+  defs.push(`<linearGradient id="fg${fanSVG.k = (fanSVG.k || 0) + 1}" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="${PAL[0]}"/><stop offset=".45" stop-color="${PAL[1]}"/><stop offset=".75" stop-color="${PAL[2]}"/><stop offset="1" stop-color="${PAL[3]}"/></linearGradient>`);
+  for (let i = 0; i < n; i++) {
+    const a = 192 + i * (156 / (n - 1)), L = 120 + (i % 2) * 22;
+    bars.push(`<g transform="translate(200 214) rotate(${a})"><g class="bar" style="--d:${d0 + i * 70}ms"><rect x="74" y="-11" width="${L}" height="22" rx="3" fill="url(#fg${fanSVG.k})"/><rect x="80" y="-5" width="${L}" height="22" rx="3" fill="none" stroke="#F6F4FA" stroke-opacity=".75" stroke-width="2"/></g></g>`);
+  }
+  svg.setAttribute('viewBox', '0 0 400 230');
+  svg.innerHTML = `<defs>${defs.join('')}</defs>${bars.join('')}`;
+}
+function waveSVG(svg) {
+  const out = [], arcs = 4, R = 70, step = 760 / arcs;
+  let idx = 0;
+  for (let k = 0; k < arcs; k++) {
+    const cx = 60 + step / 2 + k * step * 0.92, cy = 125, up = k % 2 === 0;
+    for (let j = 0; j <= 14; j++) {
+      const t = Math.PI + (j / 14) * Math.PI, a = up ? t : t - Math.PI;
+      const r1 = R - 18, r2 = R + 22 + (j % 2) * 10, col = PAL[Math.min(3, Math.floor(idx / 15))];
+      out.push(`<line x1="${(cx + r1 * Math.cos(a)).toFixed(1)}" y1="${(cy + r1 * Math.sin(a)).toFixed(1)}" x2="${(cx + r2 * Math.cos(a)).toFixed(1)}" y2="${(cy + r2 * Math.sin(a)).toFixed(1)}" stroke="${col}" stroke-width="4" stroke-linecap="round" style="--d:${idx * 45}ms"/>`);
+      idx++;
+    }
+  }
+  svg.setAttribute('viewBox', '0 0 800 260');
+  svg.innerHTML = out.join('');
+}
+document.querySelectorAll('svg.fan').forEach(fanSVG);
+document.querySelectorAll('svg.wave').forEach(waveSVG);
+document.querySelectorAll('.slide').forEach(sl => sl.insertAdjacentHTML('afterbegin', '<div class="orb o1"></div><div class="orb o2"></div>'));
+
 const stage = document.getElementById('stage');
 const slides = [...document.querySelectorAll('.slide')];
-const bar = document.getElementById('bar'), notes = document.getElementById('notes'), help = document.getElementById('help');
+const bar = document.getElementById('bar'), help = document.getElementById('help');
+const PRESENTER = location.search.includes('presenter');
+let chan; try { chan = new BroadcastChannel('tjam-slides'); } catch {}
 let cur = 0;
 
 function fit() {
@@ -218,7 +295,7 @@ function countUp(el) {
   requestAnimationFrame(step);
 }
 
-function show(i) {
+function show(i, fromChan) {
   i = Math.max(0, Math.min(slides.length - 1, i));
   slides[cur].classList.remove('on');
   cur = i;
@@ -227,9 +304,28 @@ function show(i) {
   s.classList.add('on');
   s.querySelectorAll('[data-count]').forEach(el => setTimeout(() => countUp(el), 500));
   bar.style.width = ((cur + 1) / slides.length * 100) + '%';
-  notes.textContent = s.dataset.notes || '';
-  try { history.replaceState(null, '', '#' + (cur + 1)); } catch {}
+  document.body.className = PRESENTER ? 'presenting' : ['teal', 'pink', 'viol', 'multi'].find(c => s.classList.contains(c));
+  if (PRESENTER) renderPresenter();
+  if (!fromChan) chan?.postMessage({ i: cur });
+  try { history.replaceState(null, '', location.search + '#' + (cur + 1)); } catch {}
 }
+chan && (chan.onmessage = e => { if (typeof e.data?.i === 'number' && e.data.i !== cur) show(e.data.i, true); });
+
+// Presenter window: notes, next slide and a clock — never shown on the projector
+const t0 = Date.now();
+const titleOf = s => (s.querySelector('h2, h1')?.textContent || '').trim();
+function renderPresenter() {
+  const s = slides[cur], nx = slides[cur + 1], p = document.getElementById('presenter');
+  p.innerHTML = `<div><div class="now">Слайд ${cur + 1} из ${slides.length}</div><div class="title">${titleOf(s)}</div><div class="note">${s.dataset.notes || '—'}</div></div>
+    <div class="side"><div class="clock" id="clk"></div><div class="next">Дальше: ${nx ? titleOf(nx) : 'конец'}</div>
+    <div class="btns"><button id="pv">← Назад</button><button id="nx">Дальше →</button></div>
+    <div class="hint">Это окно держите на ноутбуке, слайды — на проекторе. Листать можно отсюда или там.</div></div>`;
+  document.getElementById('pv').onclick = e => { e.stopPropagation(); show(cur - 1); };
+  document.getElementById('nx').onclick = e => { e.stopPropagation(); show(cur + 1); };
+  tick();
+}
+function tick() { const el = document.getElementById('clk'); if (!el) return; const m = Math.floor((Date.now() - t0) / 1000); el.textContent = String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); }
+if (PRESENTER) { stage.hidden = true; bar.hidden = true; help.hidden = true; document.getElementById('presenter').hidden = false; setInterval(tick, 1000); }
 
 function toggleFull() {
   const p = document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
@@ -244,9 +340,9 @@ addEventListener('keydown', e => {
   else if (k === 'Home') show(0);
   else if (k === 'End') show(slides.length - 1);
   else if ('fFаА'.includes(k)) toggleFull();
-  else if ('nNтТ'.includes(k)) notes.hidden = !notes.hidden;
+  else if ('pPзЗ'.includes(k) && !PRESENTER) window.open('slides.html?presenter#' + (cur + 1), 'tjam-presenter', 'width=1100,height=700');
 });
-addEventListener('click', e => { if (e.clientX < innerWidth / 4) show(cur - 1); else show(cur + 1); });
+addEventListener('click', e => { if (PRESENTER) return; if (e.clientX < innerWidth / 4) show(cur - 1); else show(cur + 1); });
 setTimeout(() => help.style.opacity = 0, 4000);
 
 show((parseInt(location.hash.slice(1), 10) || 1) - 1);
