@@ -78,8 +78,8 @@ main { flex: 1; display: grid; place-items: center; }
   <header>
     <div class="brand"><b>Т—ДЖЕМ</b> · Т—Университет</div>
     <div class="modes" role="group" aria-label="Режим">
-      <button class="chip" id="m-work" aria-pressed="true">Работа · 40 мин</button>
-      <button class="chip" id="m-pitch" aria-pressed="false">Защита · 2 мин</button>
+      <button class="chip" id="m-work" aria-pressed="true">Работа · 30 мин</button>
+      <button class="chip" id="m-pitch" aria-pressed="false">Защита · 5 мин</button>
     </div>
   </header>
 
@@ -90,7 +90,7 @@ main { flex: 1; display: grid; place-items: center; }
       <svg id="rays" viewBox="-110 -110 220 220" aria-hidden="true"></svg>
       <div class="center">
         <div class="phase" id="phase">Роли</div>
-        <div class="digits" id="digits" aria-live="off">40:00</div>
+        <div class="digits" id="digits" aria-live="off">30:00</div>
         <div class="sub" id="sub">Распределите роли в команде</div>
       </div>
     </div>
@@ -117,26 +117,26 @@ main { flex: 1; display: grid; place-items: center; }
 <script>
 const MODES = {
   work: {
-    total: 40 * 60,
+    total: 30 * 60,
     phases: [
       { from: 0,  to: 5,  name: 'Роли',      sub: 'Распределите роли в команде' },
-      { from: 5,  to: 20, name: 'Концепция', sub: 'Жанр, игрок, лор' },
-      { from: 20, to: 35, name: 'Доработка', sub: 'Core loop, лого, обложка' },
-      { from: 35, to: 40, name: 'Питч',      sub: 'Готовим защиту на 2 минуты' }
+      { from: 5,  to: 15, name: 'Концепция', sub: 'Жанр, игрок, лор' },
+      { from: 15, to: 25, name: 'Доработка', sub: 'Core loop, лого, обложка' },
+      { from: 25, to: 30, name: 'Питч',      sub: 'Готовим выступление на 3 минуты' }
     ],
     // shown when the phase starts (minute → message)
-    alerts: { 5: 'Роли распределены? Переходим к концепции', 20: 'Карта-твист! Тяните ограничение из шляпы', 35: 'Осталось 5 минут — готовим питч', 39: 'Последняя минута!' },
+    alerts: { 5: 'Роли распределены? Переходим к концепции', 15: 'Карта-твист! Тяните ограничение из шляпы', 25: 'Осталось 5 минут — готовим выступление', 29: 'Последняя минута!' },
     endMsg: 'Время вышло! Ручки на стол'
   },
   pitch: {
-    total: 2 * 60,
-    phases: [{ from: 0, to: 2, name: 'Защита', sub: '2 минуты на выступление' }],
-    alerts: {},
-    endMsg: 'Время! Вопрос от жюри'
+    total: 5 * 60,
+    phases: [{ from: 0, to: 3, name: 'Выступление', sub: '3 минуты на рассказ' }, { from: 3, to: 5, name: 'Вопросы', sub: 'Вопросы жюри' }],
+    alerts: { 3: 'Время вопросов жюри' },
+    endMsg: 'Время! Следующая команда'
   }
 };
 const RAYS = 60;
-const KEY = 'tjam-timer-v1';
+const KEY = 'tjam-timer-v2';
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let mode = 'work', total = MODES.work.total;

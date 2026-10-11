@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Т—ДЖЕМ: бланк жюри</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300..700&display=swap">
+<style>
+  @page { size: A4 landscape; margin: 10mm 12mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Jost', Arial, sans-serif; color: #1E2A3A; font-size: 10pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  header { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 3mm; border-bottom: 1.2mm solid #2C8C8C; margin-bottom: 4mm; }
+  h1 { font-size: 22pt; font-weight: 500; letter-spacing: 1.5pt; text-transform: uppercase; color: #165560; line-height: 1; }
+  .who { font-size: 11pt; }
+  .who span { display: inline-block; width: 70mm; border-bottom: 0.3mm solid #1E2A3A; margin-left: 2mm; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #165560; color: #F6F4FA; font-weight: 500; font-size: 9pt; letter-spacing: .5pt; text-transform: uppercase; padding: 2mm 2mm; text-align: center; border: 0.3mm solid #165560; }
+  th small { display: block; font-size: 7.5pt; font-weight: 300; text-transform: none; letter-spacing: 0; opacity: .85; }
+  th.l { text-align: left; }
+  td { border: 0.3mm solid #9FB6BA; height: 17mm; vertical-align: top; padding: 1.5mm 2mm; font-size: 9pt; color: #7A8494; }
+  td.n { width: 22mm; font-size: 12pt; color: #1E2A3A; font-weight: 500; vertical-align: middle; }
+  td.s { width: 19mm; } td.b { width: 22mm; } td.sum { width: 18mm; background: #EEF6F5; }
+  .rubric { margin-top: 4mm; display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+  .crit { border: 0.3mm solid #9FB6BA; border-radius: 3mm; padding: 2.5mm 3mm; }
+  .crit b { display: block; font-size: 10pt; font-weight: 600; color: #165560; text-transform: uppercase; letter-spacing: .5pt; margin-bottom: 1mm; }
+  .crit p { font-size: 8.5pt; line-height: 1.3; }
+  .crit p i { font-style: normal; font-weight: 600; color: #7C6CC6; }
+  .foot { margin-top: 3mm; font-size: 8.5pt; color: #4A5568; display: flex; justify-content: space-between; gap: 6mm; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Т—ДЖЕМ · бланк жюри</h1>
+  <div class="who">Жюри:<span></span></div>
+</header>
+
+<table>
+  <tr>
+    <th class="l">Команда</th>
+    <th>Геймплей<small>0–5</small></th>
+    <th>Тема<small>0–5</small></th>
+    <th>Аудитория<small>0–5</small></th>
+    <th>Защита и лист<small>0–5</small></th>
+    <th>Ограничение<small>+2 если обыграли</small></th>
+    <th>Сумма<small>из 22</small></th>
+    <th class="l">Заметки для команды</th>
+  </tr>
+  <tr><td class="n">1</td><td class="s"></td><td class="s"></td><td class="s"></td><td class="s"></td><td class="b"></td><td class="sum"></td><td></td></tr>
+  <tr><td class="n">2</td><td class="s"></td><td class="s"></td><td class="s"></td><td class="s"></td><td class="b"></td><td class="sum"></td><td></td></tr>
+  <tr><td class="n">3</td><td class="s"></td><td class="s"></td><td class="s"></td><td class="s"></td><td class="b"></td><td class="sum"></td><td></td></tr>
+  <tr><td class="n">4</td><td class="s"></td><td class="s"></td><td class="s"></td><td class="s"></td><td class="b"></td><td class="sum"></td><td></td></tr>
+  <tr><td class="n">5</td><td class="s"></td><td class="s"></td><td class="s"></td><td class="s"></td><td class="b"></td><td class="sum"></td><td></td></tr>
+  <tr><td class="n">6</td><td class="s"></td><td class="s"></td><td class="s"></td><td class="s"></td><td class="b"></td><td class="sum"></td><td></td></tr>
+</table>
+
+<div class="rubric">
+  <div class="crit"><b>Геймплей</b>
+    <p><i>1</i> непонятно, что делает игрок<br><i>2</i> действие есть, но смутное<br><i>3</i> понятно что делать, но не зачем играть снова<br><i>4</i> цикл есть, не хватает награды или цели<br><i>5</i> чёткий цикл «действие → награда → снова»</p></div>
+  <div class="crit"><b>Тема</b>
+    <p><i>1</i> темы не видно<br><i>2</i> тема упомянута, но на игру не влияет<br><i>3</i> тема есть, но её легко заменить<br><i>4</i> тема влияет на игру, направление угадывается слабо<br><i>5</i> без темы игры бы не было, направление узнаётся</p></div>
+  <div class="crit"><b>Аудитория</b>
+    <p><i>1</i> «для всех»<br><i>2</i> назвали очень широко («для подростков»)<br><i>3</i> назван возраст или тип игрока<br><i>4</i> портрет есть, но не сказали, где найдут игру<br><i>5</i> конкретный портрет + где найдут игру</p></div>
+  <div class="crit"><b>Защита и лист</b>
+    <p><i>1</i> сбились, не уложились, лист не показали<br><i>2</i> рассказали сумбурно, на листе мало<br><i>3</i> понятно, но лист пустоватый<br><i>4</i> всё понятно, не хватает лого или обложки<br><i>5</i> уложились в 3 минуты, на листе есть всё</p></div>
+</div>
+
+<div class="foot">
+  <span>На листе А3 должно быть: название и лого · жанр и похожая игра · для кого игра · игровой цикл · мир в 3 предложениях · обложка</span>
+  <span>Т—Университет · ИСТ</span>
+</div>
+</body>
+</html>
